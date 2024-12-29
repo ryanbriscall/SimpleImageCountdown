@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Countdown</title>
+		<style>
+			html, body { overflow:hidden; margin:0 }
+			body { line-height:1; font-size:100vh; font-family:Consolas }
+			#timer {
+				visibility: visible;
+				opacity: 1;
+				transition: opacity 2s linear;
+				color: #FFF;
+				text-shadow: 1vh 1vh 3vh #000, 1vh 1vh 3vh #000;
+				text-align:right;
+				display:flex;
+				flex-direction:row;
+				float:right;
+			}
+			#timer.fade {
+				visibility: hidden;
+				opacity: 0;
+				transition: visibility 0s 2s, opacity 2s linear;
+			}
+			[data-char] {
+				background: transparent 50% 50%/100% 100% no-repeat;
+				height: 100vh;
+				width: 56vh;
+			}
+			[data-char="1"] { background-image: url(1.png) }
+			[data-char="3"] { background-image: url(3.png) }
+			[data-char="2"] { background-image: url(2.png) }
+			[data-char="4"] { background-image: url(4.png) }
+			[data-char="5"] { background-image: url(5.png) }
+			[data-char="6"] { background-image: url(6.png) }
+			[data-char="7"] { background-image: url(7.png) }
+			[data-char="8"] { background-image: url(8.png) }
+			[data-char="9"] { background-image: url(9.png) }
+			[data-char="0"] { background-image: url(0.png) }
+			[data-char=":"] { background-image: url(colon.png) }
+		</style>
+		<script>
+			var timerInterval = null;
+
+			document.addEventListener("DOMContentLoaded", function() {
+				var urlParams = new URLSearchParams(window.location.search);
+				var amount = (urlParams.get('amount') === null) ? 0 : +urlParams.get('amount');
+				var fade = (urlParams.get('fade') === null) ? 0 : +urlParams.get('fade');
+				start({
+					seconds: amount,
+					fade: fade,
+					selector: "#timer"
+				});
+			});
+
+			function start(cfg) {
+				var duration = cfg.seconds;
+				var fade = cfg.fade;
+				var el = document.querySelector(cfg.selector);
+				var placeholders = el.querySelectorAll('[data-char]');
+
+				var start = Date.now();
+				var diff;
+				var minutes;
+				var seconds;
+
+				function timer() {
+					var normalizedDiff = duration - (((Date.now() - start) / 1000) | 0);
+
+					diff = normalizedDiff;
+
+					if (normalizedDiff >= 0) {
+						minutes = (diff / 60) | 0;
+						seconds = diff % 60 | 0;
+
+						minutes = minutes < 10 ? " " + minutes : minutes;
+						seconds = seconds < 10 ? "0" + seconds : seconds;
+
+						var chars = (minutes + ":" + seconds).split("");
+						for (var i = 0; i < placeholders.length; i++) {
+							placeholders[i].setAttribute('data-char', chars[i]);
+						}
+					}
+					else {
+						if (fade) {
+							el.classList.add('fade');
+						}
+						clearInterval(timerInterval);
+					}
+				}
+				timer();
+				timerInterval = setInterval(timer, 1000);
+			}
+		</script>
+	</head>
+	<body>
+		<div id="timer">
+			<div data-char="0"></div>
+			<div data-char="0"></div>
+			<div data-char=":"></div>
+			<div data-char="0"></div>
+			<div data-char="0"></div>
+		</div>
+	</body>
+</html>
